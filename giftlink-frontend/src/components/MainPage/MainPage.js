@@ -1,28 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {urlConfig} from '../../config';
+import { urlConfig } from '../../config';
 
 function MainPage() {
     const [gifts, setGifts] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Task 1: Write async fetch operation
-        // Write your code below this line
+        const fetchGifts = async () => {
+            try {
+                let url = `${urlConfig.backendUrl}/api/gifts`;
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP error; ${response.status}`);
+                }
+                const data = await response.json();
+                setGifts(data);
+            } catch (error) {
+                console.log('Fetch error: ' + error.message);
+            }
+        };
+
+        fetchGifts();
     }, []);
 
-    // Task 2: Navigate to details page
     const goToDetailsPage = (productId) => {
-        // Write your code below this line
+        navigate(`/app/product/${productId}`);
+    };
 
-      };
-
-    // Task 3: Format timestamp
     const formatDate = (timestamp) => {
-        // Write your code below this line
-      };
+        if (!timestamp) return "Unknown date";
+        const date = new Date(timestamp * 1000); // Modifier selon l’API
+        return date.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' });
+    };
 
     const getConditionClass = (condition) => {
+        if (!condition) return "list-group-item-secondary";
         return condition === "New" ? "list-group-item-success" : "list-group-item-warning";
     };
 
@@ -30,26 +43,29 @@ function MainPage() {
         <div className="container mt-5">
             <div className="row">
                 {gifts.map((gift) => (
-                    <div key={gift.id} className="col-md-4 mb-4">
+                    <div key={gift._id || gift.id} className="col-md-4 mb-4">
                         <div className="card product-card">
-
-                            {/* // Task 4: Display gift image or placeholder */}
-                            {/* // Write your code below this line */}
-
+                            {/* Tâche 4 : Afficher l'image du cadeau ou un placeholder */}
+                            <div className="image-placeholder">
+                                {gift.image ? (
+                                    <img src={gift.image} alt={gift.name} className="card-img-top" />
+                                ) : (
+                                    <div className="no-image-available">No Image Available</div>
+                                )}
+                            </div>
                             <div className="card-body">
-
-                                {/* // Task 5: Display gift image or placeholder */}
-                                {/* // Write your code below this line */}
-
+                                {/* Tâche 5 : Afficher le nom et l'état du cadeau */}
+                                <h5 className="card-title">{gift.name}</h5>
                                 <p className={`card-text ${getConditionClass(gift.condition)}`}>
-                                {gift.condition}
+                                    {gift.condition || "Unknown"}
                                 </p>
 
-                                {/* // Task 6: Display gift image or placeholder */}
-                                {/* // Write your code below this line */}
-                                
+                                {/*  Tâche 6 : Afficher la date formatée */}
+                                <p className="card-text">
+                                    <strong>Published on:</strong> {formatDate(gift.timestamp)}
+                                </p>
 
-                                <button onClick={() => goToDetailsPage(gift.id)} className="btn btn-primary">
+                                <button onClick={() => goToDetailsPage(gift._id || gift.id)} className="btn btn-primary">
                                     View Details
                                 </button>
                             </div>
